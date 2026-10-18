@@ -1,0 +1,21 @@
+# Raw Kaggle download (about 3 million rows) — too large for git
+data/raw/
+*.zip
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# Large or generated experiment output (commit summaries, not raw logs)
+experiments/results/raw/
+
+# Paper PDFs are copyrighted — keep notes only
+papers/*.pdf
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
