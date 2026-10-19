@@ -1,7 +1,5 @@
 # Paper notes — Masaki Kajikuri
 
-> Write these notes in your own words after reading the full paper. The PDF is copyrighted, so do not commit it; use the DOI link.
-
 ## 1. Full citation
 A. K. Maji and R. K. Pal, "Sudoku solver using minigrid based backtracking," in Proc. IEEE Int. Advance Comput. Conf. (IACC), Gurgaon, India, Feb. 2014, pp. 36–44.
 DOI: https://doi.org/10.1109/IAdCC.2014.6779291
