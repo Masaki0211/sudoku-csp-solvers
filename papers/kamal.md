@@ -41,11 +41,16 @@ For solving the Sudoku puzzles:
 ## 7. What we will take from it
 - Simulated annealing and genetic algorithm are _not_ faster than backtracking
 - Implementing a hard cap on time makes analysis easier
-- Showing results with a log graph can be quite benefitual
+- Showing results with a log graph can be quite beneficial
 
 ## What we will do differently
 - Our time cap will be 60 seconds, instead of 3600 seconds
-- 
+- We do not care about image processing
+- Recording of how many nodes were checked and how much backtracking was there, instead of just timing the algorithms (in order to obtain results that are independent of the testing machine)
+- We will confirm that uniqueness our solutions are unique per puzzle
+- Testing of various puzzles within each of the provided difficulty ranges, instead of presumably just one
 
 ## Questions I expect in class
 - _Why bring up a paper that spends a great deal of time discussing algorithms that we will not be using?_ Because this paper justifies why we will be focusing on backtracking instead of other algorithms, such as simulated annealing and genetic algorithms.
+- _Why are we using backtracking, when the abstract says that simulated annealing is better?_ Because the results of the paper shows, and the authors write that backtracking is better. The only place that says that simulated annealing is better is in the abstract, and in comparison to genetic algorithms.
+- _Why not use simulated annealing or genetic algorithms as one of our models?_ Because the authors have already shown that those algorithms are slower than simply backtracking, and more importantly, because our research questions is directed towards how specific optimizations improve the backtracking model, rather than which model is best for Sudoku puzzles.
