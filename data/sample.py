@@ -19,41 +19,69 @@ SEED = 3368          # fixed so every member gets the same sample
 N_BANDS = 5
 PER_BAND = 100
 
+import pandas as pd
 
 def load_dataset(path):
-    """Read the raw CSV and return a DataFrame with id, puzzle, solution, clues, difficulty.
-
-    TODO(Zachary): the file has about 3 million rows; read only the needed columns.
-    TODO(Zachary): normalise blanks so '.' and '0' both mean an empty cell.
+    """Read the raw CSV and return a DataFrame with puzzle, solution, clues, difficulty.
+    Note: As the data is already normalized, no normalization occurs here.
     """
-    raise NotImplementedError
+    df = pd.read_csv(path, usecols=["puzzle", "solution", "clues", "difficulty"]);
+    return df;
 
 
 def assign_bands(df, n_bands=N_BANDS):
-    """Add a 'band' column (0 = easiest).
-
-    TODO(Zachary): decide how to cut the bands and write the reason here.
-    Many puzzles are rated 0, so equal-width bins may leave some bands nearly empty;
-    quantile bins (pandas.qcut) are one option.
+    """Creates a DataFrame with an added 'band' column (ranging from 0 as the easiest, to n_bands-1 as the hardest).
+    Note: As a disporportionate amount of puzzles are considered difficulty "0.0," the bands are calculated in a strange way.
+        Our classification works by estimating how many items should go into each bin based on how many items and bins are left (items / bins), and then
+        filling into the next available bin all values corresponding to a unique difficulty value until the bin is at capacity or overflows. As it doesn't
+        make sense to divide the bin between different items with the same difficulty rating, the bin keeps all of the overflow, and the estimated items
+        per bin is recalculate, and the process repeats with the next available bin until all bins are filled, and all items are classified.
     """
-    raise NotImplementedError
+    # (1)
+    uniqueDifficultyValues = df['difficulty'].sort_values().value_counts(sort=False);
+    # (2)
+    band_partitions = [-1];
+    totalLeft = df['difficulty'].count();
+    accumulator = 0;
+    bandsLeft = n_bands
+    accumulatorCap = totalLeft / bandsLeft;
+    # (3)
+    for index, value in uniqueDifficultyValues.items():
+        accumulator += value;
+        if accumulator >= accumulatorCap:
+            totalLeft -= accumulator;
+            bandsLeft -= 1;
+            if bandsLeft > 0:
+                accumulatorCap = totalLeft / bandsLeft;
+            else:
+                accumulatorCap = totalLeft;
+            accumulator = 0;
+            band_partitions.append(index);
+    #print(band_partitions); # DEBUG : This shows where exactly are the difficulty bands being placed
+    df['band'] = pd.cut(df['difficulty'], bins=band_partitions, include_lowest=True, labels=range(n_bands));
+    return df;
 
 
 def count_solutions(puzzle, stop_at=2):
     """Return the number of solutions, stopping early once stop_at is reached.
-
-    TODO(Zachary): a plain backtracking counter is enough; reuse src/csp_model.py.
+        This can be implemented later, as it will be very costly to check all solution paths to each of these items,
+        and it is unlikely that any of these problems contain duplicate solutions, based on the dataset's description.
     """
     raise NotImplementedError
 
 
 def sample(df, per_band=PER_BAND, seed=SEED):
     """Return per_band unique-solution puzzles from each band.
-
-    TODO(Zachary): draw extra candidates per band, filter with count_solutions,
-    then keep the first per_band that pass.
+        Note: Uniqueness is currently being assumed from the dataset. I belive this is a reasonable assumption,
+        but irregardless, I will probably remove this assumption later.
     """
-    raise NotImplementedError
+    
+    finalSample = pd.DataFrame(columns=["puzzle", "solution", "clues", "difficulty"]);
+    for bandValue in df['band'].unique():
+        sample = (df[df['band'] == bandValue]).sample(n=per_band, random_state=seed);
+        finalSample = finalSample.merge(sample, how='outer');
+    
+    return finalSample;
 
 
 def main():
