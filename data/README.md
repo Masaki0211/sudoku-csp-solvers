@@ -7,7 +7,6 @@ Each row contains:
 
 | Column | Meaning |
 |---|---|
-| `id` | Row number |
 | `puzzle` | 81 characters, row by row; blanks are `.` or `0` (check after download) |
 | `solution` | 81 digits, the unique solution |
 | `clues` | Number of given digits (19–31 in this dataset) |
@@ -44,6 +43,6 @@ df = fetch_openml(data_id=43476, as_frame=True).frame
 1. Split puzzles into five difficulty bands.
 2. Draw 100 puzzles per band with a fixed random seed, so everyone gets the same 500.
 3. Keep a puzzle only if a solution counter stops at exactly one solution.
-4. Save `id, puzzle, solution, clues, difficulty, band`.
+4. Save `puzzle, solution, clues, difficulty, band` (the experiment scripts use the row number as the puzzle id).
 
 The 500-row sample is small and CC0, so it **is** committed.
