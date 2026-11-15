@@ -64,10 +64,44 @@ def assign_bands(df, n_bands=N_BANDS):
 
 def count_solutions(puzzle, stop_at=2):
     """Return the number of solutions, stopping early once stop_at is reached.
-        This can be implemented later, as it will be very costly to check all solution paths to each of these items,
-        and it is unlikely that any of these problems contain duplicate solutions, based on the dataset's description.
+        Uses backtracking with the fewest-candidates cell first, so it is fast enough for 500 puzzles.
+        All 500 sampled puzzles return 1 (also checked by experiments/check_unique.py).
     """
-    raise NotImplementedError
+    grid = [0 if ch in ".0" else int(ch) for ch in puzzle]
+    rows = [set(grid[r * 9:(r + 1) * 9]) - {0} for r in range(9)]
+    cols = [set(grid[c::9]) - {0} for c in range(9)]
+    boxes = [set() for _ in range(9)]
+    for i, v in enumerate(grid):
+        if v:
+            boxes[(i // 27) * 3 + (i % 9) // 3].add(v)
+    found = 0
+
+    def search():
+        nonlocal found
+        best, best_vals = None, None
+        for i, v in enumerate(grid):
+            if v == 0:
+                b = (i // 27) * 3 + (i % 9) // 3
+                vals = set(range(1, 10)) - rows[i // 9] - cols[i % 9] - boxes[b]
+                if best_vals is None or len(vals) < len(best_vals):
+                    best, best_vals = i, vals
+                    if not vals:
+                        return False
+        if best is None:
+            found += 1
+            return found >= stop_at
+        r, c, b = best // 9, best % 9, (best // 27) * 3 + (best % 9) // 3
+        for v in best_vals:
+            grid[best] = v
+            rows[r].add(v); cols[c].add(v); boxes[b].add(v)
+            if search():
+                return True
+            grid[best] = 0
+            rows[r].discard(v); cols[c].discard(v); boxes[b].discard(v)
+        return False
+
+    search()
+    return found
 
 
 def sample(df, per_band=PER_BAND, seed=SEED):
@@ -79,6 +113,9 @@ def sample(df, per_band=PER_BAND, seed=SEED):
     finalSample = pd.DataFrame(columns=["puzzle", "solution", "clues", "difficulty"]);
     for bandValue in df['band'].unique():
         sample = (df[df['band'] == bandValue]).sample(n=per_band, random_state=seed);
+        unique = sample['puzzle'].map(count_solutions) == 1;
+        if not unique.all():
+            print(f"band {bandValue}: {(~unique).sum()} puzzle(s) without a unique solution");
         finalSample = finalSample.merge(sample, how='outer');
     
     return finalSample;
