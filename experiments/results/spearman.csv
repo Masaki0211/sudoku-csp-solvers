@@ -3,5 +3,9 @@ bt,clues,500,-0.229,0.0
 bt,difficulty,500,0.0946,0.0344
 bt_mrv,clues,500,-0.1627,0.0003
 bt_mrv,difficulty,500,0.1738,0.0001
+bt_mrv_fc,clues,500,-0.1619,0.0003
+bt_mrv_fc,difficulty,500,0.1756,0.0001
+bt_mrv_mac,clues,500,-0.2009,0.0
+bt_mrv_mac,difficulty,500,0.1472,0.001
 minigrid,clues,500,-0.1989,0.0
 minigrid,difficulty,500,0.1219,0.0063
